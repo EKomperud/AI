@@ -1,0 +1,133 @@
+function action = CS4300_MC_agent(percept)
+% CS4300_MC_agent - Monte Carlo agent with a few informal rules
+% On input:
+%   percept (1x5 Boolean vector): percept from Wumpus world
+%       (1): stench
+%       (2): breeze
+%       (3): glitter
+%       (4): bump
+%       (5): scream
+% On output:
+%   action (int): action to take
+%       1: FORWARD
+%       2: RIGHT
+%       3: LEFT
+%       4: GRAB
+%       5: SHOOT+
+%       6: CLIMB
+% Call:
+%   a = CS4300_MC_agent(percept);
+% Author:
+%   Eric Komperud
+%   U0844210
+%   Fall 2017
+
+FORWARD = 1;
+RIGHT = 2;
+LEFT = 3;
+GRAB = 4;
+SHOOT = 5;
+CLIMB = 6;
+
+persistent plan board visited breezes stenches agent
+if isempty(agent)
+    agent.x = 1;
+    agent.y = 1;
+    agent.dir = 0;
+    agent.gold = 0;
+    agent.arrow = 1;
+    agent.smelled_stench = 0;
+    board = ones(4,4);
+    board(4,1) = 0;
+    visited = zeros(4,4);
+    visited(4,1) = 1;
+    breezes = -ones(4,4);
+    stenches = -ones(4,4);
+end
+
+if percept(2) == 1
+    breezes(5 - agent.y, agent.x) = 1;
+else
+    breezes(5 - agent.y, agent.x) = 0;
+end
+
+if percept(1) == 1
+    stenches(5 - agent.y, agent.x) = 1;
+    agent.smelled_stench = 1;
+else
+    stenches(5 - agent.y, agent.x) = 0;
+end
+
+[p_pits, p_wumps] = CS4300_WP_estimates(breezes,stenches,500);
+for y = 4:-1:1
+    for x = 1:4
+        if p_pits(y,x) == 0 && p_wumps(y,x) == 0
+            board(y,x) = 0;
+        end
+    end
+end
+
+if  percept(3) == 1 && agent.gold == 0
+    state = [agent.x,agent.y,agent.dir];
+    [solution, nodes] = CS4300_Wumpus_A_star(board, state, [1,1,1], 'CS4300_A_star_Man');
+    plan = [[state(1),state(2),state(3),4]; solution; [1,1,1,6]];
+    agent.gold = 1;
+end
+
+if isempty(plan)
+    destination = CS4300_pick_one(board, visited);
+    state = [agent.x,agent.y,agent.dir];
+    if ~isempty(destination)
+        [route_plan, nodes] = CS4300_Wumpus_A_star(board, state, destination, 'CS4300_A_star_Man');
+        plan = route_plan;
+    end
+end
+
+if isempty(plan) && agent.arrow == 1 && agent.smelled_stench == 1
+    wumpus_location = [0,0];
+    wumpus_chance = 0;
+    for y = 4:-1:1
+        for x = 1:4
+            if p_wumps(y,x) > wumpus_chance
+                wumpus_location = [x,y];
+                wumpus_chance = p_wumps(y,x);
+            end
+        end
+    end
+    shot_state = CS4300_find_location_to_shoot(board,wumpus_location);
+    [route_plan, nodes] = CS4300_Wumpus_A_star(board,[agent.x,agent.y,agent.dir],shot_state,'CS4300_A_star_Man');
+    take_shot = [shot_state, 5];
+    plan = [route_plan; take_shot];
+end
+
+if isempty(plan)
+    least_unsafe_location = [0,0,0];
+    danger_level = 1;
+    for y = 4:-1:1
+        for x = 1:4
+            neighbors = CS4300_get
+            if p_pits(y,x) < danger_level && p_pits(y,x) > 0
+                least_unsafe_location = [x,5-y,0];
+                danger_level = p_pits(y,x);
+            end
+        end
+    end
+    [route_plan, nodes] = CS4300_Wumpus_A_star(board,[agent.x,agent.y,agent.dir],least_unsafe_location,'CS4300_A_star_Man');
+    plan = route_plan;
+end
+
+action = plan(1,4);
+plan(1,:) = [];
+if action == 0
+    action = plan(1,4);
+    plan(1,:) = [];
+end
+
+state = CS4300_Wumpus_transition([agent.x,agent.y,agent.dir], action, board);
+agent.x = state(1);
+agent.y = state(2);
+agent.dir = state(3);
+visited(5 - agent.y,agent.x) = 1;
+
+end
+
