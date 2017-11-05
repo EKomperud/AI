@@ -34,7 +34,7 @@ function [pits,Wumpus] = CS4300_WP_estimates(breezes,stench,num_trials)
 %   Eric Komperud
 %   U0844210
 %   Fall 2016
-LIMIT = 60000;
+LIMIT = 20000;
 count = 0;
 successes = 0;
 
@@ -44,16 +44,12 @@ for i = 1:num_trials
     b = CS4300_gen_board(0.2);
     [p,w] = CS4300_gen_percept_boards(b);
     while (~CS4300_board_match(breezes, p) || ~CS4300_board_match(stench, w)) && ...
-            count < LIMIT
+            (count < LIMIT || successes == 0)
         b = CS4300_gen_board(0.2);
         [p,w] = CS4300_gen_percept_boards(b);
         count = count + 1;
     end
-    if count >= LIMIT
-        break;
-    end
     successes = successes + 1;
-    
     for y = 1:4
         for x = 1:4
             if b(y,x) == 1 %PIT
@@ -63,18 +59,22 @@ for i = 1:num_trials
             end
         end
     end
+    if count >= LIMIT
+        break;
+    end
 end
 
-if successes == 0
-    [pits, Wumpus] = CS4300_WP_estimates(breezes,stench,num_trials);
-else
+% if successes == 0
+%     pits = -2;
+%     Wumpus = -2;
+% else
     for y = 1:4
         for x = 1:4
             pits(y,x) = pits(y,x) / successes;
             Wumpus(y,x) = Wumpus(y,x) / successes;
         end
     end  
-end
+%end
 
 end
 

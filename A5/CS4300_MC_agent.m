@@ -30,7 +30,7 @@ SHOOT = 5;
 CLIMB = 6;
 debug = "";
 
-persistent plan board visited breezes stenches agent
+persistent plan board visited breezes stenches agent P_pits P_wumps
 if isempty(agent)
     agent.x = 1;
     agent.y = 1;
@@ -38,6 +38,7 @@ if isempty(agent)
     agent.gold = 0;
     agent.arrow = 1;
     agent.smelled_stench = 0;
+    agent.heard_scream = 0;
     board = ones(4,4);
     board(4,1) = 0;
     visited = zeros(4,4);
@@ -55,21 +56,28 @@ else
     breezes(5 - agent.y, agent.x) = 0;
 end
 
-if percept(1) == 1
-    stenches(5 - agent.y, agent.x) = 1;
-    agent.smelled_stench = 1;
-else
-    stenches(5 - agent.y, agent.x) = 0;
+if agent.heard_scream == 0
+    if percept(1) == 1
+        stenches(5 - agent.y, agent.x) = 1;
+        agent.smelled_stench = 1;
+    else
+        stenches(5 - agent.y, agent.x) = 0;
+    end
 end
 
 if percept(5) == 1
     stenches = -ones(4,4);
+    agent.heard_scream = 1;
 end
 
 [p_pits, p_wumps] = CS4300_WP_estimates(breezes,stenches,50);
+if p_pits(1) ~= -2
+    P_pits = p_pits;
+    P_wumps = p_wumps;
+end
 for y = 4:-1:1
     for x = 1:4
-        if p_pits(y,x) == 0 && p_wumps(y,x) == 0
+        if P_pits(y,x) == 0 && P_wumps(y,x) == 0
             board(y,x) = 0;
         end
     end
@@ -99,9 +107,9 @@ if isempty(plan) && agent.arrow == 1 && agent.smelled_stench == 1
     wumpus_chance = 0;
     for y = 4:-1:1
         for x = 1:4
-            if p_wumps(5 - y,x) > wumpus_chance
+            if P_wumps(5 - y,x) > wumpus_chance
                 wumpus_location = [x,y];
-                wumpus_chance = p_wumps(y,x);
+                wumpus_chance = P_wumps(y,x);
             end
         end
     end
@@ -127,7 +135,7 @@ if isempty(plan)
                         is_frontier = 1;
                     end
                 end
-                p_danger = max(p_pits(5-y,x),p_wumps(5-y,x));
+                p_danger = max(P_pits(5-y,x),P_wumps(5-y,x));
                 if p_danger < danger_level && is_frontier == 1
                     least_unsafe_location = [x,y,0];
                     danger_level = p_danger;
