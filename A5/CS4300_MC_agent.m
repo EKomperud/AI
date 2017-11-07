@@ -70,7 +70,7 @@ if percept(5) == 1
     agent.heard_scream = 1;
 end
 
-[p_pits, p_wumps] = CS4300_WP_estimates(breezes,stenches,50);
+[p_pits, p_wumps] = CS4300_WP_estimates(breezes,stenches,200);
 if p_pits(1) ~= -2
     P_pits = p_pits;
     P_wumps = p_wumps;
@@ -149,12 +149,16 @@ if isempty(plan)
     plan = route_plan;
 end
 
-debug_plan = plan;
-action = plan(1,4);
-plan(1,:) = [];
-if action == 0
+if ~isempty(plan)
+    debug_plan = plan;
     action = plan(1,4);
     plan(1,:) = [];
+    if action == 0
+        action = plan(1,4);
+        plan(1,:) = [];
+    end
+else
+    action = 2;
 end
 
 state = CS4300_Wumpus_soft_transition([agent.x,agent.y,agent.dir], action, board);
