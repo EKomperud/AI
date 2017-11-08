@@ -34,7 +34,7 @@ function [pits,Wumpus] = CS4300_WP_estimates(breezes,stench,num_trials)
 %   Eric Komperud
 %   U0844210
 %   Fall 2016
-LIMIT = 20000;
+LIMIT = 30000;
 count = 0;
 successes = 0;
 

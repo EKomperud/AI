@@ -70,7 +70,7 @@ if percept(5) == 1
     agent.heard_scream = 1;
 end
 
-[p_pits, p_wumps] = CS4300_WP_estimates(breezes,stenches,200);
+[p_pits, p_wumps] = CS4300_WP_estimates(breezes,stenches,50);
 if p_pits(1) ~= -2
     P_pits = p_pits;
     P_wumps = p_wumps;
