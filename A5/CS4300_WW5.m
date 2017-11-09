@@ -3,7 +3,7 @@ function [scores,traces] = CS4300_WW5(max_steps,f_name,boards)
 %   Detailed explanation goes here
 
 len = length(boards);
-scores = zeros(len);
+scores = zeros(250,1);
 traces(len).trace = 0;
 
 for b = 1:len

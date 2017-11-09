@@ -33,6 +33,7 @@ agent.gold = 0;  % grabbed gold in same room
 agent.dir = 0;  % facing right
 agent.succeed = 0;  % has gold and climbed out
 agent.climbed = 0; % climbed out
+agent.time = 0;
 
 trace(1).board = board;
 trace(1).agent = agent;
@@ -49,6 +50,7 @@ clear(f_name);
 while step<max_steps&done==0
     step = step + 1;
     percept = CS4300_get_percept(board,agent,bumped,screamed);
+    
     action = feval(f_name,percept);
     if action==5
         score = score - 50;

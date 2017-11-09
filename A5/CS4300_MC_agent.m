@@ -93,7 +93,7 @@ end
 
 if isempty(plan)
     debug = "explore safe location";
-    destination = CS4300_pick_one(board, visited);
+    destination = CS4300_pick_oneA5(board, visited);
     state = [agent.x,agent.y,agent.dir];
     if ~isempty(destination)
         [route_plan, nodes] = CS4300_Wumpus_A_star(board, state, destination, 'CS4300_A_star_Man');

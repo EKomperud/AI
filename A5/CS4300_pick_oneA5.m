@@ -24,7 +24,7 @@ for i = 1:16
     if x == 0
         x = 4;
     end
-    if safe(y,x) == 1 && visited(y,x) == 0
+    if safe(y,x) == 0 && visited(y,x) == 0
         possible_locations = [possible_locations; [x,(5-y),0]];
         size = size + 1;
     end
