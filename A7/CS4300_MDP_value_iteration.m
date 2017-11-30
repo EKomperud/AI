@@ -47,16 +47,16 @@ Slen = length(S);
 Alen = length(A);
 
 U = zeros(Slen,1);
-U(3) = -1000;
-U(7) = -1000;
-U(11) = -1000;
-U(16) = 1000;
+%U(3) = -1000;
+%U(7) = -1000;
+%U(11) = -1000;
+%U(16) = 1000;
 
 Up = zeros(Slen,1);
-Up(3) = -1000;
-Up(7) = -1000;
-Up(11) = -1000;
-Up(16) = 1000;
+%Up(3) = -1000;
+%Up(7) = -1000;
+%Up(11) = -1000;
+%Up(16) = 1000;
 
 iterations = 0;
 U_trace = zeros(max_iter, Slen);
@@ -64,17 +64,15 @@ U_trace = zeros(max_iter, Slen);
 
 while (1)
     U = Up;
-    curly_fuck = 0;
+    curly_thing = 0;
     for state = 1:Slen
-        Possible_Utilities = [0,0,0,0];
-        % TODO: set to zeros(Alen)
+        Possible_Utilities = zeros(Alen,1);
         for action = 1:Alen
             v = P(state, action);
-            % TODO: find
             %vpx = [0,0,0];
             vp = 0;
             %vi = 1;
-            for vs = 1:16
+            for vs = 1:Slen
                 if v.probs(vs) ~= 0.0
                     %vpx(vi) = v.probs(vs) * U(vs);
                     vp = vp + (v.probs(vs) * U(vs));
@@ -83,18 +81,14 @@ while (1)
             end
             Possible_Utilities(action) = vp;
         end
-        Up(state) = R(state) + (gamma * (max(Possible_Utilities)));  
-        Up(3) = -1000;
-        Up(7) = -1000;
-        Up(11) = -1000;
-        Up(16) = 1000;       
-        curly_fuck = max(curly_fuck, Up(state) - U(state));
+        Up(state) = R(state) + (gamma * (max(Possible_Utilities)));       
+        curly_thing = max(curly_thing, Up(state) - U(state));
     end
     iterations = iterations + 1;
     for s = 1:Slen
         U_trace(iterations,s) = Up(s);
     end
-    if curly_fuck < (eta * (1 - gamma) / gamma)
+    if curly_thing < (eta * (1 - gamma) / gamma)
         return;
     end
     

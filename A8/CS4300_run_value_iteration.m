@@ -1,12 +1,12 @@
 function [S,A,R,P,U,Ut,policy] = CS4300_run_value_iteration(wumpus)
-% A driver function to run the value iteration algorithm and subsequent
+% A driver function to run the policy iteration algorithm and subsequent
 % policy generation algorithm on a board. 
 % Input: 
 %   0 to run on R&N board or 1 to run on Wumpus board
 % Output:
 %   S,A,R,P: Vectors of the input parameters used by value iteration
-%   U: A 16x1 vector of the final utilites
-%   Ut: A 100x16 vector of the utilities at each iteration
+%   U: A Nx1 vector of the final utilites
+%   Ut: An Iterations x N vector of the utilities at each iteration
 %   policy: A policy based on U
 %
 % Call:
@@ -40,15 +40,10 @@ else
     max_iter = 100;
 end
 
-times = zeros(30,1);
-for i = 1:30
-    tic
-    [U,Ut] = CS4300_MDP_value_iteration(S,A,P,R,gamma,eta,max_iter);
-    policy = CS4300_MDP_policy(S,A,P,U);
-    times(i) = toc;
-end
+[U,Ut] = CS4300_MDP_value_iteration(S,A,P,R,gamma,eta,max_iter);
 
-return
+policy = CS4300_MDP_policy(S,A,P,U);
+
 % Uncomment to plot utilities %%
 
 % X = [];

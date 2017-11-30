@@ -1,4 +1,4 @@
-function policy = CS4300_MDP_policy(S,A,P,U)
+function [policy, unchanged] = CS4300_MDP_policy(S,A,P,U,Pepis)
 % CS4300_MDP_policy - generate a policy from utilities
 % See p. 648 Russell & Norvig
 % On input:
@@ -8,6 +8,7 @@ function policy = CS4300_MDP_policy(S,A,P,U)
 %       (s,a).probs (a vector with n transition probabilities
 %       from s to s_prime, given action a)
 %   U (vector): state utilities
+%   Pepis (vector): An existing policy to try and beat (1 to n)
 % On output:
 %   policy (vector): actions per state
 % Call:
@@ -18,10 +19,12 @@ function policy = CS4300_MDP_policy(S,A,P,U)
 %   Fall 2017
 %
 
-policy = zeros(length(U),1);
+policy = Pepis;
+%policy = zeros(length(U),1);
 Slen = length(S);
 Alen = length(A);
 Ulen = length(U);
+unchanged = 1;
 
 for u = 1:Ulen
     possible_actions = zeros(Alen,1);
@@ -35,7 +38,10 @@ for u = 1:Ulen
         possible_actions(action) = v_sum;
     end
     [mx, index] = max(possible_actions);
-    policy(u) = index;
+    if (Pepis(u) ~= index)
+        policy(u) = index;
+        unchanged = 0;
+    end
 end
 
 
